@@ -16,6 +16,8 @@ import {
 import { College, CollegeType } from '@/lib/types';
 import { CollegeCard } from '@/components/college/CollegeCard';
 import { getFeesByCollege, getPlacementsByCollege } from '@/lib/data';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { Badge } from '@/components/ui/Badge';
 import { cn } from '@/lib/utils';
 
 interface CollegeExplorerClientProps {
@@ -26,8 +28,10 @@ export function CollegeExplorerClient({ initialColleges }: CollegeExplorerClient
   const searchParams = useSearchParams();
   const initialType = searchParams.get('type') || 'ALL';
   const initialExam = searchParams.get('exam') || 'ALL';
+  const initialBranch = searchParams.get('branch') || '';
+  const initialSearch = searchParams.get('search') || '';
 
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState(initialSearch);
   const [selectedType, setSelectedType] = useState<string>(initialType);
   const [selectedState, setSelectedState] = useState<string>('ALL');
   const [selectedExam, setSelectedExam] = useState<string>(initialExam);
@@ -55,7 +59,7 @@ export function CollegeExplorerClient({ initialColleges }: CollegeExplorerClient
   // Filtering logic
   const filteredColleges = useMemo(() => {
     return initialColleges.filter(college => {
-      // Search
+      // Search query
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
         const matchesName =
@@ -143,6 +147,7 @@ export function CollegeExplorerClient({ initialColleges }: CollegeExplorerClient
   };
 
   const activeFiltersCount =
+    (searchQuery.trim() ? 1 : 0) +
     (selectedType !== 'ALL' ? 1 : 0) +
     (selectedState !== 'ALL' ? 1 : 0) +
     (selectedExam !== 'ALL' ? 1 : 0) +
@@ -155,11 +160,15 @@ export function CollegeExplorerClient({ initialColleges }: CollegeExplorerClient
       {/* Page Title & Tagline */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-50 dark:bg-brand-950/80 text-brand-700 dark:text-brand-300 border border-brand-200/80 dark:border-brand-800/60 text-xs font-semibold mb-2">
+            <Building2 className="w-3.5 h-3.5" />
+            <span>National Engineering Directory</span>
+          </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
             Engineering College Explorer
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Browse and filter {initialColleges.length} verified engineering institutions by type, fees, placements, and cutoffs.
+            Browse and filter verified engineering institutions by type, fees, placements, and cutoffs.
           </p>
         </div>
 
@@ -168,7 +177,7 @@ export function CollegeExplorerClient({ initialColleges }: CollegeExplorerClient
           <button
             type="button"
             onClick={() => setIsMobileFilterOpen(true)}
-            className="lg:hidden inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300"
+            className="lg:hidden inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 shadow-card"
           >
             <SlidersHorizontal className="w-4 h-4 text-brand-600" />
             <span>Filters ({activeFiltersCount})</span>
@@ -176,11 +185,13 @@ export function CollegeExplorerClient({ initialColleges }: CollegeExplorerClient
 
           {/* Sort Dropdown */}
           <div className="flex items-center gap-2">
-            <span className="hidden sm:inline text-xs text-slate-400 font-medium">Sort by:</span>
+            <span className="hidden sm:inline text-xs text-slate-400 font-semibold uppercase tracking-wider">
+              Sort by:
+            </span>
             <select
               value={sortBy}
               onChange={e => setSortBy(e.target.value as any)}
-              className="px-3 py-2 text-xs sm:text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 font-medium focus:outline-none focus:ring-2 focus:ring-brand-500"
+              className="px-3 py-2 text-xs sm:text-sm rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 font-medium focus:outline-none focus:ring-2 focus:ring-brand-500 shadow-card cursor-pointer"
             >
               <option value="nirf">NIRF Ranking (Top First)</option>
               <option value="avgPackage">Highest Average Package</option>
@@ -203,7 +214,7 @@ export function CollegeExplorerClient({ initialColleges }: CollegeExplorerClient
               'px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all border',
               selectedType === item.value
                 ? 'bg-brand-600 border-brand-600 text-white shadow-sm'
-                : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-700'
+                : 'bg-white dark:bg-slate-900 border-slate-200/80 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-700'
             )}
           >
             {item.label}
@@ -211,11 +222,72 @@ export function CollegeExplorerClient({ initialColleges }: CollegeExplorerClient
         ))}
       </div>
 
+      {/* Active Filter Badges with Quick Remove */}
+      {activeFiltersCount > 0 && (
+        <div className="flex flex-wrap items-center gap-2 p-3 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200/60 dark:border-slate-800 text-xs">
+          <span className="text-slate-400 font-semibold mr-1">Active filters:</span>
+          {searchQuery && (
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-medium text-slate-700 dark:text-slate-300">
+              Query: &ldquo;{searchQuery}&rdquo;
+              <button onClick={() => setSearchQuery('')} className="hover:text-rose-500 ml-1">
+                <X className="w-3 h-3" />
+              </button>
+            </span>
+          )}
+          {selectedType !== 'ALL' && (
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-medium text-slate-700 dark:text-slate-300">
+              Type: {selectedType}
+              <button onClick={() => setSelectedType('ALL')} className="hover:text-rose-500 ml-1">
+                <X className="w-3 h-3" />
+              </button>
+            </span>
+          )}
+          {selectedState !== 'ALL' && (
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-medium text-slate-700 dark:text-slate-300">
+              State: {selectedState}
+              <button onClick={() => setSelectedState('ALL')} className="hover:text-rose-500 ml-1">
+                <X className="w-3 h-3" />
+              </button>
+            </span>
+          )}
+          {selectedExam !== 'ALL' && (
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-medium text-slate-700 dark:text-slate-300">
+              Exam: {selectedExam}
+              <button onClick={() => setSelectedExam('ALL')} className="hover:text-rose-500 ml-1">
+                <X className="w-3 h-3" />
+              </button>
+            </span>
+          )}
+          {maxFee < 3000000 && (
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-medium text-slate-700 dark:text-slate-300">
+              Fee ≤ ₹{(maxFee / 100000).toFixed(0)}L
+              <button onClick={() => setMaxFee(3000000)} className="hover:text-rose-500 ml-1">
+                <X className="w-3 h-3" />
+              </button>
+            </span>
+          )}
+          {minAvgPackage > 0 && (
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-medium text-slate-700 dark:text-slate-300">
+              Min Avg: ₹{minAvgPackage} LPA
+              <button onClick={() => setMinAvgPackage(0)} className="hover:text-rose-500 ml-1">
+                <X className="w-3 h-3" />
+              </button>
+            </span>
+          )}
+          <button
+            onClick={handleResetFilters}
+            className="text-xs text-brand-600 dark:text-brand-400 font-semibold hover:underline ml-auto"
+          >
+            Clear all
+          </button>
+        </div>
+      )}
+
       {/* Grid with Left Sidebar Filters + College Cards */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
         {/* Desktop Sidebar Filters */}
-        <div className="hidden lg:block sticky top-20 p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-card space-y-6">
-          <div className="flex items-center justify-between">
+        <div className="hidden lg:block sticky top-20 p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-card space-y-5">
+          <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
             <h3 className="font-bold text-sm text-slate-900 dark:text-white flex items-center gap-2">
               <Filter className="w-4 h-4 text-brand-600" />
               <span>Filter Colleges</span>
@@ -224,7 +296,7 @@ export function CollegeExplorerClient({ initialColleges }: CollegeExplorerClient
               <button
                 type="button"
                 onClick={handleResetFilters}
-                className="text-xs text-brand-600 dark:text-brand-400 hover:underline flex items-center gap-1"
+                className="text-xs text-brand-600 dark:text-brand-400 hover:underline flex items-center gap-1 font-semibold"
               >
                 <RotateCcw className="w-3 h-3" />
                 <span>Reset</span>
@@ -234,8 +306,8 @@ export function CollegeExplorerClient({ initialColleges }: CollegeExplorerClient
 
           {/* Search Box */}
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-              Search
+            <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+              Search by Keyword
             </label>
             <div className="relative">
               <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -244,20 +316,20 @@ export function CollegeExplorerClient({ initialColleges }: CollegeExplorerClient
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
                 placeholder="College name, alias..."
-                className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-slate-200/90 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-brand-500"
               />
             </div>
           </div>
 
           {/* State */}
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+            <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
               State / Region
             </label>
             <select
               value={selectedState}
               onChange={e => setSelectedState(e.target.value)}
-              className="w-full p-2 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200"
+              className="w-full p-2 text-xs rounded-xl border border-slate-200/90 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 font-medium"
             >
               <option value="ALL">All States Across India</option>
               {states.map(st => (
@@ -268,13 +340,13 @@ export function CollegeExplorerClient({ initialColleges }: CollegeExplorerClient
 
           {/* Entrance Exam */}
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+            <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
               Entrance Exam
             </label>
             <select
               value={selectedExam}
               onChange={e => setSelectedExam(e.target.value)}
-              className="w-full p-2 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200"
+              className="w-full p-2 text-xs rounded-xl border border-slate-200/90 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 font-medium"
             >
               <option value="ALL">All Entrance Exams</option>
               <option value="JEE Main">JEE Main</option>
@@ -288,18 +360,18 @@ export function CollegeExplorerClient({ initialColleges }: CollegeExplorerClient
 
           {/* Counselling Body */}
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+            <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
               Counselling Authority
             </label>
             <select
               value={selectedCounselling}
               onChange={e => setSelectedCounselling(e.target.value)}
-              className="w-full p-2 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200"
+              className="w-full p-2 text-xs rounded-xl border border-slate-200/90 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 font-medium"
             >
               <option value="ALL">All Counselling Systems</option>
               <option value="JoSAA">JoSAA (IITs, NITs, IIITs)</option>
               <option value="CSAB">CSAB Special Rounds</option>
-              <option value="JAC Delhi">JAC Delhi (DTU, NSUT, IIITD)</option>
+              <option value="JAC Delhi">JAC Delhi (DTU, NSUT)</option>
               <option value="WBJEE">WBJEE (Jadavpur)</option>
               <option value="MHT CET">MHT CET (COEP)</option>
               <option value="Direct / University">Direct Institutional</option>
@@ -307,12 +379,12 @@ export function CollegeExplorerClient({ initialColleges }: CollegeExplorerClient
           </div>
 
           {/* Max 4-Year Fees */}
-          <div className="space-y-2">
+          <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800">
             <div className="flex items-center justify-between text-xs">
-              <label className="font-semibold text-slate-400 uppercase tracking-wider">
+              <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
                 Max 4-Year Fees
               </label>
-              <span className="font-mono font-bold text-slate-800 dark:text-slate-200">
+              <span className="font-mono font-bold text-slate-900 dark:text-slate-100">
                 ₹{(maxFee / 100000).toFixed(1)} Lakh
               </span>
             </div>
@@ -323,17 +395,17 @@ export function CollegeExplorerClient({ initialColleges }: CollegeExplorerClient
               step={100000}
               value={maxFee}
               onChange={e => setMaxFee(Number(e.target.value))}
-              className="w-full accent-brand-600"
+              className="w-full accent-brand-600 cursor-pointer"
             />
           </div>
 
           {/* Min Average Package */}
           <div className="space-y-2">
             <div className="flex items-center justify-between text-xs">
-              <label className="font-semibold text-slate-400 uppercase tracking-wider">
-                Min Average Package
+              <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                Min Avg Package
               </label>
-              <span className="font-mono font-bold text-slate-800 dark:text-slate-200">
+              <span className="font-mono font-bold text-slate-900 dark:text-slate-100">
                 {minAvgPackage > 0 ? `₹${minAvgPackage} LPA` : 'Any'}
               </span>
             </div>
@@ -344,7 +416,7 @@ export function CollegeExplorerClient({ initialColleges }: CollegeExplorerClient
               step={2}
               value={minAvgPackage}
               onChange={e => setMinAvgPackage(Number(e.target.value))}
-              className="w-full accent-brand-600"
+              className="w-full accent-brand-600 cursor-pointer"
             />
           </div>
         </div>
@@ -352,9 +424,11 @@ export function CollegeExplorerClient({ initialColleges }: CollegeExplorerClient
         {/* Colleges Grid */}
         <div className="lg:col-span-3 space-y-4">
           <div className="flex items-center justify-between text-xs text-slate-500 px-1">
-            <span>Showing <strong className="text-slate-900 dark:text-slate-100 font-mono">{filteredColleges.length}</strong> institutions</span>
+            <span>
+              Showing <strong className="text-slate-900 dark:text-slate-100 font-mono font-bold">{filteredColleges.length}</strong> of {initialColleges.length} colleges
+            </span>
             {activeFiltersCount > 0 && (
-              <span className="text-brand-600 dark:text-brand-400 font-medium">
+              <span className="text-brand-600 dark:text-brand-400 font-semibold">
                 {activeFiltersCount} filter(s) active
               </span>
             )}
@@ -367,40 +441,34 @@ export function CollegeExplorerClient({ initialColleges }: CollegeExplorerClient
               ))}
             </div>
           ) : (
-            <div className="p-12 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-center space-y-4">
-              <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mx-auto text-slate-400">
-                <Building2 className="w-6 h-6" />
-              </div>
-              <div>
-                <h3 className="font-bold text-base text-slate-900 dark:text-white">
-                  No colleges match your current filters
-                </h3>
-                <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
-                  Try adjusting the maximum fee slider or resetting filters to view all colleges.
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={handleResetFilters}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-brand-600 hover:bg-brand-700 text-white transition-colors"
-              >
-                <RotateCcw className="w-3.5 h-3.5" />
-                <span>Reset All Filters</span>
-              </button>
-            </div>
+            <EmptyState
+              title="No colleges match your current filters"
+              description="Try relaxing your maximum fee threshold, switching the entrance exam filter, or clearing the search query."
+              action={
+                <button
+                  type="button"
+                  onClick={handleResetFilters}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-brand-600 hover:bg-brand-700 text-white transition-colors"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  <span>Reset All Filters</span>
+                </button>
+              }
+            />
           )}
         </div>
       </div>
 
       {/* Mobile Filters Drawer Modal */}
       {isMobileFilterOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex justify-end">
-          <div className="w-full max-w-xs bg-white dark:bg-slate-900 h-full p-6 shadow-2xl overflow-y-auto space-y-6">
+        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex justify-end animate-fade-in">
+          <div className="w-full max-w-xs bg-white dark:bg-slate-900 h-full p-6 shadow-dropdown overflow-y-auto space-y-6">
             <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
-              <h3 className="font-bold text-base text-slate-900 dark:text-white">Filters</h3>
+              <h3 className="font-bold text-base text-slate-900 dark:text-white">Filter Colleges</h3>
               <button
                 onClick={() => setIsMobileFilterOpen(false)}
                 className="p-1 rounded-lg text-slate-400 hover:text-slate-600"
+                aria-label="Close filters"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -413,7 +481,7 @@ export function CollegeExplorerClient({ initialColleges }: CollegeExplorerClient
                 <select
                   value={selectedState}
                   onChange={e => setSelectedState(e.target.value)}
-                  className="w-full p-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950"
+                  className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950"
                 >
                   <option value="ALL">All States</option>
                   {states.map(st => (
@@ -427,7 +495,7 @@ export function CollegeExplorerClient({ initialColleges }: CollegeExplorerClient
                 <select
                   value={selectedExam}
                   onChange={e => setSelectedExam(e.target.value)}
-                  className="w-full p-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950"
+                  className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950"
                 >
                   <option value="ALL">All Exams</option>
                   <option value="JEE Main">JEE Main</option>
@@ -444,7 +512,7 @@ export function CollegeExplorerClient({ initialColleges }: CollegeExplorerClient
                 <select
                   value={selectedCounselling}
                   onChange={e => setSelectedCounselling(e.target.value)}
-                  className="w-full p-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950"
+                  className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950"
                 >
                   <option value="ALL">All Counselling</option>
                   <option value="JoSAA">JoSAA</option>
@@ -459,7 +527,7 @@ export function CollegeExplorerClient({ initialColleges }: CollegeExplorerClient
               <button
                 type="button"
                 onClick={() => setIsMobileFilterOpen(false)}
-                className="w-full py-2.5 rounded-xl bg-brand-600 text-white font-semibold text-xs"
+                className="w-full py-2.5 rounded-xl bg-brand-600 text-white font-semibold text-xs shadow-sm"
               >
                 Apply Filters ({filteredColleges.length} results)
               </button>
@@ -468,7 +536,7 @@ export function CollegeExplorerClient({ initialColleges }: CollegeExplorerClient
                 onClick={handleResetFilters}
                 className="w-full py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 font-semibold text-xs"
               >
-                Reset All
+                Reset All Filters
               </button>
             </div>
           </div>
