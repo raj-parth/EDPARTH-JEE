@@ -30,7 +30,6 @@ export function Navbar() {
   const { bookmarkedSlugs, compareSlugs } = useAppStore();
 
   const mainNavLinks = [
-    { href: '/batches', label: 'Batches', icon: Sparkles, badge: 'LIVE' },
     { href: '/colleges', label: 'Colleges', icon: Compass },
     { href: '/cutoffs', label: 'Cutoffs', icon: TrendingUp },
     { href: '/compare', label: 'Compare', icon: Scale, count: compareSlugs.length },
@@ -83,11 +82,6 @@ export function Navbar() {
                   >
                     <Icon className="w-3.5 h-3.5" />
                     <span>{link.label}</span>
-                    {'badge' in link && (
-                      <span className="text-[9px] px-1.5 py-0.2 rounded-full font-bold bg-rose-500 text-white uppercase tracking-wider animate-pulse">
-                        {link.badge}
-                      </span>
-                    )}
                     {typeof link.count === 'number' && link.count > 0 && (
                       <span className="text-[10px] px-1.5 py-0.2 rounded-full font-mono bg-brand-600 text-white font-bold">
                         {link.count}
@@ -199,11 +193,6 @@ export function Navbar() {
                   <div className="flex items-center gap-3">
                     <Icon className="w-4 h-4 text-slate-500" />
                     <span>{link.label}</span>
-                    {'badge' in link && (
-                      <span className="text-[9px] px-1.5 py-0.2 rounded-full font-bold bg-rose-500 text-white uppercase tracking-wider">
-                        {link.badge}
-                      </span>
-                    )}
                   </div>
                   {typeof link.count === 'number' && link.count > 0 && (
                     <span className="px-2 py-0.5 rounded-full text-xs font-mono bg-brand-600 text-white font-semibold">

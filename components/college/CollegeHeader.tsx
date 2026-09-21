@@ -13,9 +13,7 @@ import {
   Scale,
   ShieldCheck,
   Check,
-  Share2,
-  Sparkles,
-  ArrowRight
+  Share2
 } from 'lucide-react';
 import { College } from '@/lib/types';
 import { useAppStore } from '@/lib/store';
@@ -165,28 +163,6 @@ export function CollegeHeader({ college }: CollegeHeaderProps) {
               <span>{bookmarked ? 'Saved to List' : 'Bookmark'}</span>
             </button>
           </div>
-        </div>
-
-        {/* Target College Prep & Mentorship Callout */}
-        <div className="pt-2">
-          <Link
-            href="/batches/mission-100-jee-2026"
-            className="group flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 sm:px-4 sm:py-2.5 rounded-2xl bg-gradient-to-r from-brand-50 via-indigo-50 to-purple-50 dark:from-brand-950/40 dark:via-indigo-950/40 dark:to-purple-950/40 border border-brand-200/80 dark:border-brand-800/80 hover:border-brand-300 dark:hover:border-brand-700 transition-all text-xs"
-          >
-            <div className="flex items-center gap-2.5">
-              <span className="w-6 h-6 rounded-lg bg-brand-600 text-white flex items-center justify-center shrink-0 shadow-sm">
-                <Sparkles className="w-3.5 h-3.5" />
-              </span>
-              <span className="text-slate-700 dark:text-slate-200">
-                Targeting <strong className="text-slate-900 dark:text-white font-bold">{college.shortName}</strong> for 2026? Join <strong>MISSION 100 JEE 2026</strong> for 1-on-1 IITian Cutoff & Choice Filling Mentorship.
-              </span>
-            </div>
-
-            <div className="flex items-center gap-1 font-bold text-brand-700 dark:text-brand-300 group-hover:underline shrink-0">
-              <span>Explore Live Batch</span>
-              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-            </div>
-          </Link>
         </div>
       </div>
     </div>
