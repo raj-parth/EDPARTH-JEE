@@ -32,6 +32,7 @@ export * from './campuses';
 export * from './admissions';
 export * from './branches';
 export * from './exams';
+export * from './batches';
 
 export function getAllColleges(): College[] {
   return COLLEGES_DATA;

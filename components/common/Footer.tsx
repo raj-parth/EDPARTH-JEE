@@ -69,6 +69,19 @@ export function Footer() {
           </h4>
           <ul className="space-y-2 text-xs sm:text-sm">
             <li>
+              <Link href="/batches/mission-100-jee-2026" className="hover:text-brand-600 dark:hover:text-brand-400 flex items-center gap-1.5 transition-colors font-medium">
+                <span>MISSION 100 JEE 2026 Batch</span>
+                <span className="text-[9px] px-1.5 py-0.2 rounded font-mono font-bold bg-rose-50 text-rose-700 dark:bg-rose-950 dark:text-rose-300">
+                  LIVE
+                </span>
+              </Link>
+            </li>
+            <li>
+              <Link href="/batches" className="hover:text-brand-600 dark:hover:text-brand-400 transition-colors">
+                All Prep & Mentorship Batches
+              </Link>
+            </li>
+            <li>
               <Link href="/predictor" className="hover:text-brand-600 dark:hover:text-brand-400 flex items-center gap-1.5 transition-colors">
                 <span>JEE Percentile Matcher</span>
                 <span className="text-[9px] px-1.5 py-0.2 rounded font-mono font-bold bg-brand-50 text-brand-700 dark:bg-brand-950 dark:text-brand-300">

@@ -42,6 +42,8 @@ import { Badge } from '@/components/ui/Badge';
 import { cn } from '@/lib/utils';
 import { BRANCHES_DATA } from '@/lib/data/branches';
 import { EXAMS_DATA } from '@/lib/data/exams';
+import { BATCHES_DATA } from '@/lib/data/batches';
+import { BatchCard } from '@/components/batch/BatchCard';
 
 interface LandingClientProps {
   colleges: College[];
@@ -548,7 +550,31 @@ export function LandingClient({ colleges }: LandingClientProps) {
         </div>
       </section>
 
-      {/* 5. Branch Explorer */}
+      {/* 5. PhysicsWallah-Style Batches & Mentorship Portal */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+        <SectionHeader
+          eyebrow="Mission 100 JEE 2026/2027"
+          title="Live Preparation & JoSAA Mentorship Batches"
+          description="PhysicsWallah-inspired rigorous curriculum, India's elite IITian educators, and EDPARTH's verified cutoff and choice-filling algorithm."
+          action={
+            <Link
+              href="/batches"
+              className="inline-flex items-center gap-1 text-xs sm:text-sm font-semibold text-brand-600 dark:text-brand-400 hover:underline"
+            >
+              <span>Explore all batches</span>
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          }
+        />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {BATCHES_DATA.slice(0, 3).map(batch => (
+            <BatchCard key={batch.id} batch={batch} />
+          ))}
+        </div>
+      </section>
+
+      {/* 6. Branch Explorer */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
         <SectionHeader
           eyebrow="Specialization Matrix"
